@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "blockPipInstall": true,
+  "blockUvSystemInstall": true,
+  "blockUserWideToolInstall": true,
+  "currentVenvPath": ".venv",
+  "notify": true,
+  "allowedCommandRegexes": [],
+  "extraHint": ""
+}

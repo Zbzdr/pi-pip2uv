@@ -1,0 +1,45 @@
+{
+  "name": "pi-pip2uv",
+  "version": "0.1.0",
+  "description": "A pi extension that blocks pip install-style Python dependency changes and guides agents to use uv.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Zbzdr",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zbzdr/pi-pip2uv.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Zbzdr/pi-pip2uv/issues"
+  },
+  "homepage": "https://github.com/Zbzdr/pi-pip2uv#readme",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pip",
+    "uv",
+    "python",
+    "guard"
+  ],
+  "scripts": {
+    "test": "node self-test.mjs",
+    "check": "node self-test.mjs",
+    "pack:dry": "npm pack --dry-run"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "files": [
+    "index.ts",
+    "detector.mjs",
+    "config.json",
+    "self-test.mjs",
+    "README.md",
+    "LICENSE"
+  ]
+}
