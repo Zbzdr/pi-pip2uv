@@ -2,7 +2,7 @@
 
 一个小型 [pi](https://pi.dev) 扩展，用于拦截 `pip install` 风格的 Python 依赖变更，并提示 agent 使用 [`uv`](https://docs.astral.sh/uv/) 和当前项目环境。
 
-这个扩展有意保持严格：即使是 `.venv/bin/pip install ...` 也会被拦截，因为目标是让 agent 养成一致使用 `uv` 的习惯。
+这个扩展采用较严格的策略：即使执行 `.venv/bin/pip install ...` 也会被拦截；目的是让 agent 在处理 Python 依赖变更时始终优先使用 `uv`。
 
 ## 拦截策略
 
@@ -25,6 +25,18 @@
 
 ## 安装
 
+从 npm 安装：
+
+```bash
+pi install npm:pi-pip2uv
+```
+
+固定安装某个 npm 版本：
+
+```bash
+pi install npm:pi-pip2uv@0.1.0
+```
+
 从 GitHub 安装：
 
 ```bash
@@ -39,6 +51,41 @@ pi -e ./index.ts
 
 安装或修改扩展后，重启 pi 或执行 `/reload`。
 
+## 更新
+
+如果安装的是未固定版本的 npm package：
+
+```bash
+pi update npm:pi-pip2uv
+```
+
+或者更新所有 pi package：
+
+```bash
+pi update --extensions
+```
+
+如果安装时固定了具体版本，例如 `npm:pi-pip2uv@0.1.0`，pi 会把它视为 pinned package。要升级到新版本，需要显式安装新版本：
+
+```bash
+pi install npm:pi-pip2uv@0.1.1
+```
+
+如果使用 GitHub tag 安装，也同样通过安装新 tag 来升级：
+
+```bash
+pi install git:github.com/Zbzdr/pi-pip2uv@v0.1.1
+```
+
+作为维护者发布新的 npm 版本时，推荐流程：
+
+```bash
+npm test
+npm version patch   # 或 minor / major
+npm publish --access public
+git push --follow-tags
+```
+
 ## 加载顺序建议
 
 建议让 `pi-pip2uv` 加载在通用 permission / prompt 类扩展之前。这样它可以直接拦截明确禁止的 Python 依赖变更，而其它无关命令仍会继续交给你的 permission system 处理。
@@ -48,7 +95,7 @@ pi -e ./index.ts
 ```json
 {
   "packages": [
-    "git:github.com/Zbzdr/pi-pip2uv@v0.1.0",
+    "npm:pi-pip2uv",
     "npm:@gotgenes/pi-permission-system"
   ]
 }
@@ -118,6 +165,10 @@ node self-test.mjs
 pi 扩展会以你的本地用户权限运行。安装第三方扩展前，请先审查源码。
 
 `pi-pip2uv` 是一个策略 guard，不是沙箱。它会在执行前拦截 pi 的 bash tool 调用，以及交互模式下的 `!` / `!!` 用户 bash 命令。但真正的隔离仍应由操作系统、容器、虚拟机或其它沙箱策略提供。
+
+## 致谢
+
+本项目主要由 [pi](https://pi.dev) 与 GPT-5.5 协作编写。
 
 ## License
 
