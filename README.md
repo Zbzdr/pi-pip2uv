@@ -1,5 +1,7 @@
 # pi-pip2uv
 
+[中文文档](./README.zh-CN.md)
+
 A small [pi](https://pi.dev) extension that blocks `pip install`-style Python dependency changes and tells the agent to use [`uv`](https://docs.astral.sh/uv/) with the current project environment instead.
 
 It is intentionally strict: even `.venv/bin/pip install ...` is blocked, because the goal is to build a consistent `uv` workflow.

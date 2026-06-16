@@ -40,6 +40,7 @@
     "config.json",
     "self-test.mjs",
     "README.md",
+    "README.zh-CN.md",
     "LICENSE"
   ]
 }
