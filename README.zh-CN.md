@@ -2,6 +2,8 @@
 
 一个小型 [pi](https://pi.dev) 扩展，用于拦截 `pip install` 风格的 Python 依赖变更，并提示 agent 使用 [`uv`](https://docs.astral.sh/uv/) 和当前项目环境。
 
+pi-agent 以及许多 coding agent 在写代码、为了跑通脚本时，常常会顺手用全局 Python / pip 安装依赖一把梭，而缺少项目级 `.venv` 的边界意识。这个插件会及时阻断并提示它回到 `uv` 和本地 `.venv` 的工作流。它在小型工具项目里会很好用，而且比单纯依赖 skill、AGENTS.md 或提示词提醒更让人安心。
+
 这个扩展采用较严格的策略：即使执行 `.venv/bin/pip install ...` 也会被拦截；目的是让 agent 在处理 Python 依赖变更时始终优先使用 `uv`。
 
 ## 拦截策略
@@ -65,32 +67,18 @@ pi update npm:pi-pip2uv
 pi update --extensions
 ```
 
-如果安装时固定了具体版本，例如 `npm:pi-pip2uv@0.1.0`，pi 会把它视为 pinned package。要升级到新版本，需要显式安装新版本：
+如果安装的是固定 npm 版本或 GitHub tag，需要显式安装新版本：
 
 ```bash
 pi install npm:pi-pip2uv@0.1.1
-```
-
-如果使用 GitHub tag 安装，也同样通过安装新 tag 来升级：
-
-```bash
 pi install git:github.com/Zbzdr/pi-pip2uv@v0.1.1
-```
-
-作为维护者发布新的 npm 版本时，推荐流程：
-
-```bash
-npm test
-npm version patch   # 或 minor / major
-npm publish --access public
-git push --follow-tags
 ```
 
 ## 加载顺序建议
 
 建议让 `pi-pip2uv` 加载在通用 permission / prompt 类扩展之前。这样它可以直接拦截明确禁止的 Python 依赖变更，而其它无关命令仍会继续交给你的 permission system 处理。
 
-如果使用全局 package，可以在 `~/.pi/agent/settings.json` 中把它放在 permission 插件前面：
+以 `@gotgenes/pi-permission-system` 为例，可以在 `~/.pi/agent/settings.json` 中把它放在 `pi-pip2uv` 后面：
 
 ```json
 {
@@ -103,6 +91,12 @@ git push --follow-tags
 
 项目级安装在项目被信任后，通常也会早于用户级 / 全局 package 执行。
 
+### 如果 permission system 先加载
+
+如果某个 permission 扩展加载在 `pi-pip2uv` 之前，可以在该 permission system 中放行 `pip` / `uv install` 相关模式，让它们继续传递给 `pi-pip2uv` 处理。allow 规则应尽量写得精确，只覆盖会被 `pi-pip2uv` 拦截的安装命令；无关命令仍应由你的 permission system 正常处理。
+
+如果你能控制 package 顺序，让 `pi-pip2uv` 加载在 permission prompt 之前仍然是最干净的方案。
+
 ## 配置
 
 默认配置位于扩展旁边的 `config.json`。
@@ -111,12 +105,6 @@ git push --follow-tags
 
 ```text
 .pi/extensions/pi-pip2uv/config.json
-```
-
-为了兼容旧名称，也支持：
-
-```text
-.pi/extensions/pip-uv-guard/config.json
 ```
 
 也可以通过环境变量指定配置文件：

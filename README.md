@@ -4,6 +4,8 @@
 
 A small [pi](https://pi.dev) extension that blocks `pip install`-style Python dependency changes and tells the agent to use [`uv`](https://docs.astral.sh/uv/) with the current project environment instead.
 
+In pi and many other coding-agent workflows, agents may reach for global Python / pip installs when trying to make a script run, instead of respecting the project's local virtual environment. `pi-pip2uv` acts as a runtime guardrail: it blocks those unmanaged installs and points the agent back to `uv` and the local `.venv` workflow. This is especially useful for small scripts and tool projects, where a lightweight runtime check can be more reliable than relying only on skills, AGENTS.md, or prompt instructions.
+
 The guard uses a strict policy: it also blocks `.venv/bin/pip install ...`, so agents consistently prefer `uv` for Python dependency changes.
 
 ## What it blocks
@@ -55,7 +57,7 @@ Restart pi or run `/reload` after changing installed extensions.
 
 ## Updating
 
-If you installed the unpinned npm package:
+For unpinned npm installs:
 
 ```bash
 pi update npm:pi-pip2uv
@@ -67,32 +69,18 @@ or update all pi packages:
 pi update --extensions
 ```
 
-If you pinned a specific npm version, for example `npm:pi-pip2uv@0.1.0`, pi treats it as pinned. Move to a newer version by installing the new version explicitly:
+For pinned npm versions or GitHub tags, install the newer version explicitly:
 
 ```bash
 pi install npm:pi-pip2uv@0.1.1
-```
-
-For a GitHub install pinned to a tag, move to a newer tag the same way:
-
-```bash
 pi install git:github.com/Zbzdr/pi-pip2uv@v0.1.1
-```
-
-To publish a new npm release as the maintainer:
-
-```bash
-npm test
-npm version patch   # or minor / major
-npm publish --access public
-git push --follow-tags
 ```
 
 ## Load order
 
 For best results, load `pi-pip2uv` before generic permission/prompt extensions. This lets it block disallowed Python dependency changes immediately, while unrelated commands continue to your normal permission system.
 
-For global packages, put it before permission packages in `~/.pi/agent/settings.json`:
+For example, with `@gotgenes/pi-permission-system`, put it after `pi-pip2uv` in `~/.pi/agent/settings.json`:
 
 ```json
 {
@@ -105,6 +93,12 @@ For global packages, put it before permission packages in `~/.pi/agent/settings.
 
 Project-local installs also run before user/global packages after the project is trusted.
 
+### If a permission system loads first
+
+If a permission extension loads before `pi-pip2uv`, you can allow the `pip`/`uv install` patterns in that permission system so they pass through to `pi-pip2uv`. Keep those allow rules specific to install commands that `pi-pip2uv` will block; unrelated commands should still be handled by your permission system.
+
+Loading `pi-pip2uv` before permission prompts is still the cleanest setup when you control package order.
+
 ## Configuration
 
 Default configuration lives in `config.json` next to the extension.
@@ -113,12 +107,6 @@ When installed globally, trusted projects can override config at:
 
 ```text
 .pi/extensions/pi-pip2uv/config.json
-```
-
-The legacy path below is also accepted for compatibility:
-
-```text
-.pi/extensions/pip-uv-guard/config.json
 ```
 
 Environment variable override:
