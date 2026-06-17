@@ -1,6 +1,6 @@
 {
   "name": "pi-pip2uv",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A pi extension that blocks pip install-style Python dependency changes and guides agents to use uv.",
   "type": "module",
   "license": "MIT",
